@@ -8,12 +8,15 @@
 #
 # For inquiries contact  george.drettakis@inria.fr
 #
+from __future__ import annotations
 
 import torch
 import torch.nn as nn
+from jaxtyping import Float
+from torch import Tensor
 from typing import NamedTuple
 
-from . import _C
+from . import _C  # noqa
 
 
 def cpu_deep_copy_tuple(input_tuple):
@@ -25,17 +28,17 @@ def cpu_deep_copy_tuple(input_tuple):
 
 
 def rasterize_gaussians(
-    means3D,
-    means2D,
-    sh,
-    colors_precomp,
-    opacities,
-    scales,
-    rotations,
-    cov3Ds_precomp,
-    raster_settings,
-    camera_center,
-    camera_pose,
+    means3D: Float[Tensor, "b 3"],
+    means2D: Float[Tensor, "b 3"],
+    sh: Float[Tensor, "b degree 3"],
+    colors_precomp: Tensor,
+    opacities: Float[Tensor, "b 1"],
+    scales: Float[Tensor, "b 3"],
+    rotations: Float[Tensor, "b 4"],
+    cov3Ds_precomp: Tensor,
+    raster_settings: GaussianRasterizationSettings,
+    camera_center: Tensor,
+    camera_pose: Tensor,
 ):
     return _RasterizeGaussians.apply(
         means3D,
