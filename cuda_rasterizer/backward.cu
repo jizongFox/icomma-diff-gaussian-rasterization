@@ -405,7 +405,7 @@ __global__ void preprocessCUDA(
 	float3 m = means[idx];
 
 	// Taking care of gradients from the screenspace points
-	float4 m_hom = transformPoint4x4(m, proj);
+	float4 m_hom = transformPoint4x4(m, proj); // this is the opengl to the ndc space.
 	float m_w = 1.0f / (m_hom.w + 0.0000001f);
 
 	// Compute loss gradient w.r.t. 3D means due to gradients of 2D means
@@ -436,7 +436,11 @@ __global__ void preprocessCUDA(
 	
 	glm::vec3 dL_dPv = glm::vec3(a, b, c);
 	glm::mat3x3 dL_dPM = glm::outerProduct(dL_dPv,glm::vec3(m.x, m.y, m.z));
-	
+    // this does not consider the principle point and thus the gradient is wrong.
+//    std::printf(proj_k[0]);
+//	std::printf(proj_k[5]);
+//	std::printf(proj_k[11]);
+
 	float k0 = proj_k[0];
 	float k1 = proj_k[5];
 	float k2 = proj_k[11];

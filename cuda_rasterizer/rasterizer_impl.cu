@@ -217,6 +217,7 @@ int CudaRasterizer::Rasterizer::forward(
 	const bool prefiltered,
 	float* out_color,
 	int* radii,
+    float* alpha,
 	bool debug)
 {
 	const float focal_y = height / (2.0f * tan_fovy);
@@ -286,7 +287,7 @@ int CudaRasterizer::Rasterizer::forward(
 
 	// For each instance to be rendered, produce adequate [ tile | depth ] key 
 	// and corresponding dublicated Gaussian indices to be sorted
-	duplicateWithKeys << <(P + 255) / 256, 256 >> > (
+	duplicateWithKeys <<<(P + 255) / 256, 256 >>> (
 		P,
 		geomState.means2D,
 		geomState.depths,
@@ -311,7 +312,7 @@ int CudaRasterizer::Rasterizer::forward(
 
 	// Identify start and end of per-tile workloads in sorted list
 	if (num_rendered > 0)
-		identifyTileRanges << <(num_rendered + 255) / 256, 256 >> > (
+		identifyTileRanges <<<(num_rendered + 255) / 256, 256 >>> (
 			num_rendered,
 			binningState.point_list_keys,
 			imgState.ranges);
@@ -331,6 +332,9 @@ int CudaRasterizer::Rasterizer::forward(
 		imgState.n_contrib,
 		background,
 		out_color), debug)
+
+    CHECK_CUDA(cudaMemcpy(alpha, imgState.accum_alpha, width * height * sizeof(float), cudaMemcpyDeviceToHost), debug);
+
 
 	return num_rendered;
 }
