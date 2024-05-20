@@ -1,3 +1,8 @@
 build/
 diff_gaussian_rasterization.egg-info/
 dist/
+*.so
+*.pyc
+*.egg-info
+build
+cmake-build-debug
